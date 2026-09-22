@@ -1,0 +1,75 @@
+
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id               Int            @id           @default(autoincrement())
+  username         String         @unique
+  password         String
+  createdAt        DateTime                     @default(now())
+  hostedRooms      Room[]                       @relation("HostedRooms")
+  participations   RoomParticipant[]
+  chatMessages     ChatMessage[]
+}
+
+
+model Room {
+  id           Int               @id           @default(autoincrement())
+  roomId       String            @unique
+  hostId       Int
+
+  host         User              @relation("HostedRooms", fields: [hostId], references: [id])
+  
+  videoId      String?
+
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  participants RoomParticipant[]
+  messages     ChatMessage[]
+}
+
+
+
+model RoomParticipant {
+  id       Int            @id           @default(autoincrement())
+
+  roomId   Int            @unique
+  userId   Int            @unique
+  room     Room           @relation(fields: [roomId], references: [id])
+  user     User           @relation(fields: [userId], references: [id])
+  
+  role     Role           @default(PARTICIPANT)
+  
+  joinedAt DateTime       @default(now())
+  leftAt   DateTime?
+}
+enum Role {
+  HOST
+  MODERATOR
+  PARTICIPANT
+}
+
+
+
+model ChatMessage {
+  id        Int            @id           @default(autoincrement())
+  
+  roomId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  message   String
+  createdAt DateTime @default(now())
+}
