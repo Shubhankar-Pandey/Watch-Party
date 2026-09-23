@@ -360,11 +360,27 @@ export function useYouTubePlayer({
 
   /*
    * Used for the very first sync a room sends (room_created /
-   * room_joined) - stores it for onReady to consume once the
-   * player actually exists, without running the "same video?"
-   * comparison applySyncState does for live updates.
+   * room_joined).
+   *
+   * FIX: on a reconnect (e.g. the user refreshed the page), the
+   * player can already exist and have fired onReady *before* this
+   * message arrives - most commonly for the host, whose videoId is
+   * known from localStorage at mount, well before the WebSocket
+   * finishes connecting. If we always just stashed the message into
+   * pendingSyncRef, nothing would ever consume it (onReady already
+   * ran and won't run again for the same videoId), so the
+   * reconnecting client would get stuck showing a paused/black
+   * player instead of the room's actual, possibly mid-playback,
+   * state. If the player is already ready, apply the sync
+   * immediately via the same path a live sync_state uses instead of
+   * silently queuing something nothing will ever read.
    */
   function queuePendingSync(message: SyncState) {
+    if (playerRef.current && isPlayerReadyRef.current) {
+      applySyncState(message);
+      return;
+    }
+
     pendingSyncRef.current = message;
   }
 

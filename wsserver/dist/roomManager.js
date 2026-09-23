@@ -75,7 +75,14 @@ export class RoomManager {
         }
         // join room 
         if (action === "join_room") {
-            room.addParticipant(username, userId, socket, "participant");
+            // If this user is already a known participant of this
+            // room (e.g. they refreshed the page and are
+            // reconnecting), keep whatever role they already had -
+            // moderator, etc. - instead of silently resetting them
+            // to "participant" every time they rejoin.
+            const existingParticipant = room.participants.get(username);
+            const role = existingParticipant?.role ?? "participant";
+            room.addParticipant(username, userId, socket, role);
             // Send EVERYTHING the new participant needs in one message.
             socket.send(JSON.stringify({
                 type: "room_joined",
@@ -91,7 +98,7 @@ export class RoomManager {
                 type: "user_joined",
                 username,
                 userId,
-                role: "participant",
+                role,
                 participants: room.getParticipantList(),
             }, username);
             return;
