@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+import { extractYouTubeVideoId } from "../youtube";
+
 function generateRoomId() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -9,12 +11,19 @@ function generateRoomId() {
 export function MeetRoom() {
   const navigate = useNavigate();
 
-  const [videoId, setVideoId] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
 
   function handleCreateRoom() {
-    if (!videoId.trim()) {
-      toast.error("Please enter a YouTube video ID");
+    if (!videoUrl.trim()) {
+      toast.error("Please enter a YouTube video URL");
+      return;
+    }
+
+    const videoId = extractYouTubeVideoId(videoUrl);
+
+    if (!videoId) {
+      toast.error("Enter a valid YouTube video URL or ID");
       return;
     }
 
@@ -56,13 +65,13 @@ export function MeetRoom() {
       <div className="border border-gray-400 rounded-lg p-8 w-96">
         <h1 className="text-2xl font-bold mb-6">Create Room</h1>
 
-        <label className="block mb-2">YouTube Video ID</label>
+        <label className="block mb-2">YouTube Video URL</label>
 
         <input
           type="text"
-          value={videoId}
-          onChange={(e) => setVideoId(e.target.value)}
-          placeholder="e.g. dQw4w9WgXcQ"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           className="border border-black p-2 w-full mb-5"
         />
 

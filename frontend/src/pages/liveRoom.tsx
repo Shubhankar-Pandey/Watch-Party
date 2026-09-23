@@ -8,6 +8,7 @@ import type {
   RoomInfo,
 } from "./liveRoom.types";
 import { getUserIdFromStoredToken } from "./jwt";
+import { extractYouTubeVideoId } from "../youtube";
 import { useRoomSocket } from "./UseRoomSocket";
 import { useYouTubePlayer } from "./useYouTubePlayer";
 import { TopBar } from "./TopBar";
@@ -218,14 +219,21 @@ export function LiveRoom() {
     }
 
     if (!newVideoId.trim()) {
-      toast.error("Enter a video ID");
+      toast.error("Enter a YouTube video URL");
+      return;
+    }
+
+    const extractedId = extractYouTubeVideoId(newVideoId);
+
+    if (!extractedId) {
+      toast.error("Enter a valid YouTube video URL or ID");
       return;
     }
 
     sendMessage({
       action: "change_video",
       roomId: roomInfo?.roomId,
-      videoId: newVideoId.trim(),
+      videoId: extractedId,
     });
 
     setNewVideoId("");

@@ -3,6 +3,7 @@ import { Signup } from "./pages/signup"
 import { Login } from "./pages/login"
 import { MeetRoom } from "./pages/meetRoom"
 import { LiveRoom } from "./pages/liveRoom"
+import { ProtectedRoute } from "./protectedRoute"
 
 
 
@@ -13,8 +14,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Signup/>} />
         <Route path="/login" element={<Login/>}/>
-        <Route path="/meetRoom" element={<MeetRoom/>}/>
-        <Route path="/liveroom" element={<LiveRoom />}/>
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/meetRoom" element={<MeetRoom/>}/>
+          <Route path="/liveroom" element={<LiveRoom />}/>
+        </Route>
       </Routes>
     </div>
   )

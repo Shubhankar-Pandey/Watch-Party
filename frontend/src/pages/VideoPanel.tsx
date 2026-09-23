@@ -114,7 +114,7 @@ export function VideoPanel({
             <input
               value={newVideoId}
               onChange={(e) => onNewVideoIdChange(e.target.value)}
-              placeholder="YouTube Video ID"
+              placeholder="Paste a YouTube video URL"
               className="border p-2 flex-1"
             />
 
